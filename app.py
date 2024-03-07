@@ -32,7 +32,7 @@ if st.button('Generate Answer'):
         # 文書を生成
         docs = [f"{d['Beverage_category']} {d['Beverage']} {d['Beverage_prep']}" for d in data]
         model = SentenceTransformer("sentence-transformers/all-MiniLM-l6-v2")
-　　　　　　　　　　　　　　　　embeddings = model.encode(docs)
+embeddings = model.encode(docs)
 　　　　　　　　　　　　　　　　d = embeddings.shape[1]  # ベクトルの次元
 　　　　　　　　　　　　　　　　index = faiss.IndexFlatL2(d)  # L2距離を使ったインデックス
 　　　　　　　　　　　　　　　　index.add(np.array(embeddings).astype('float32'))  # ベクトルをインデックスに追加
