@@ -6,7 +6,7 @@ import json
 import openai
 
 # Streamlitアプリのタイトル
-st.title('RAG with GPT-3.5 Streamlit App')
+st.title('RAG with　STARBUCKS GPT')
 
 # APIキーの入力
 api_key = st.text_input("Enter your OpenAI API Key:", type="password")
