@@ -36,6 +36,14 @@ if st.button('Generate Answer'):
         model = SentenceTransformer("sentence-transformers/all-MiniLM-l6-v2")
         embeddings = model.encode(docs)
 
+　　　　　　　　　　　　　　　　　# FAISSインデックスを作成
+　　　　　　　　　　　　　　　　d = embeddings.shape[1]  # ベクトルの次元
+　　　　　　　　　　　　　　　　index = faiss.IndexFlatL2(d)  # L2距離を使ったインデックス
+　　　　　　　　　　　　　　　　index.add(np.array(embeddings).astype('float32'))  # ベクトルをインデックスに追加
+
+　　　　　　　　　　　　　　　　# インデックスをファイルに保存
+　　　　　　　　　　　　　　　　faiss.write_index(index, "faiss_index.bin")
+        
         # FAISSインデックスを読み込み
         index = faiss.read_index("faiss_index.bin")
 
