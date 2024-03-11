@@ -71,8 +71,7 @@ if prompt:
     # 生成されたテキストをセッション状態に追加
     answer = response.choices[0].message['content']
     st.session_state.messages.append({"role": "assistant", "content": answer})
-
-    # チャット形式で回答を表示
+        
     answer_str = str(answer)
 　　　　　　　　st.chat_message("assistant", answer_str)
 
