@@ -51,6 +51,9 @@ if prompt and api_key:
 
     # インデックスをファイルに保存
     faiss.write_index(index, "faiss_index.bin")
+    # FAISSインデックスを読み込み
+    index = faiss.read_index("faiss_index.bin")
+
 
     # 質問をベクトル化し、FAISSインデックスを使用して関連する文書を検索
     question_embedding = model.encode([prompt], convert_to_tensor=True)
