@@ -5,6 +5,7 @@ from sentence_transformers import SentenceTransformer
 import json
 import openai
 
+
 st.title('RAG with STARBUCKS GPT')
 
 # サイドバーでAPIキーの入力
@@ -23,7 +24,7 @@ for message in st.session_state.messages:
 # ユーザーからの質問を受け取る
 prompt = st.chat_input("Ask something about Starbucks beverages:")
 
-# APIキーと質問が入力されたら処理を実行
+# ボタンが押されたら処理を実行
 if prompt and api_key:
     # ユーザーの質問をセッション状態のメッセージに追加
     st.session_state.messages.append({"role": "user", "content": prompt})
@@ -47,6 +48,9 @@ if prompt and api_key:
     d = embeddings.shape[1]  # ベクトルの次元
     index = faiss.IndexFlatL2(d)
     index.add(np.array(embeddings).astype('float32'))
+
+    # インデックスをファイルに保存
+    faiss.write_index(index, "faiss_index.bin")
 
     # 質問をベクトル化し、FAISSインデックスを使用して関連する文書を検索
     question_embedding = model.encode([prompt], convert_to_tensor=True)
