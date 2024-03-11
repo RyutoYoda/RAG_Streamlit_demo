@@ -5,73 +5,72 @@ from sentence_transformers import SentenceTransformer
 import json
 import openai
 
-st.title("RAG with STARBUCKS GPT")
+# Streamlitアプリのタイトル
+st.title('RAG with STARBUCKS GPT')
 
-# サイドバーでAPIキーの入力を受け付ける
+# APIキーの入力
 api_key = st.sidebar.text_input("Enter your OpenAI API Key:", type="password")
 
-# 初期設定
-if "openai_model" not in st.session_state:
-    st.session_state["openai_model"] = "gpt-3.5-turbo"
+# 質問の入力
+question = st.text_input("Enter your question:")
 
-if "messages" not in st.session_state:
-    st.session_state.messages = []
+# ユーザーの発言
+user_message = st.text_area("Your message:", "", height=100)
 
-# すでにあるメッセージをチャット形式で表示
-for message in st.session_state.messages:
-    st.chat_message(message["role"], message["content"])
+# ボタンが押されたら処理を実行
+if st.button('Generate Answer'):
+    if not api_key:
+        st.write("Please enter your API Key.")
+    elif not question:
+        st.write("Please enter a question.")
+    else:
+        # OpenAIのAPIキーを設定
+        openai.api_key = api_key
 
-# ユーザーからの質問を受け取る
-prompt = st.chat_input("Ask something about Starbucks beverages:")
+        # JSONファイルを読み込む
+        file_path = 'starbucks_data.json'  # JSONファイルへのパス
+        with open(file_path, 'r') as file:
+            data = json.load(file)
 
-if prompt:
-    # ユーザーの質問をセッション状態に追加
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    
-    # JSONファイルを読み込む
-    file_path = 'starbucks_data.json'
-    with open(file_path, 'r') as file:
-        data = json.load(file)
+        # 文書を生成
+        docs = [f"{d['Beverage_category']} {d['Beverage']} {d['Beverage_prep']}" for d in data]
+        
+        # Hugging Faceモデルをロードして文書をベクトル化
+        model = SentenceTransformer("sentence-transformers/all-MiniLM-l6-v2")
+        embeddings = model.encode(docs)
 
-    # 文書を生成
-    docs = [f"{d['Beverage_category']} {d['Beverage']} {d['Beverage_prep']}" for d in data]
+        # FAISSインデックスを作成
+        d = embeddings.shape[1]  # ベクトルの次元
+        index = faiss.IndexFlatL2(d)  # L2距離を使ったインデックス
+        index.add(np.array(embeddings).astype('float32'))  # ベクトルをインデックスに追加
 
-    # Hugging Faceモデルをロードして文書をベクトル化
-    model = SentenceTransformer("sentence-transformers/all-MiniLM-l6-v2")
-    embeddings = model.encode(docs)
+        # FAISSインデックスを読み込み
+        index = faiss.read_index("faiss_index.bin")
 
-    # FAISSインデックスを作成
-    d = embeddings.shape[1]  # ベクトルの次元
-    index = faiss.IndexFlatL2(d)
-    index.add(np.array(embeddings).astype('float32'))
+        # 質問をベクトル化し、FAISSインデックスを使用して関連する文書を検索
+        question_embedding = model.encode([question], convert_to_tensor=True)
+        question_embedding = question_embedding.cpu().numpy()
+        _, I = index.search(question_embedding, 5)
 
-    # 質問をベクトル化
-    question_embedding = model.encode([prompt], convert_to_tensor=True)
-    question_embedding = question_embedding.cpu().numpy()
+        # 関連する文書の内容を取得
+        related_docs = [docs[i] for i in I[0]]
 
-    # 関連する文書を検索
-    _, I = index.search(question_embedding, 5)
+        # 関連する文書を基にして、プロンプトを作成
+        prompt = question + "\n\n" + "\n\n".join(related_docs)
 
-    # 関連する文書の内容を取得
-    related_docs = [docs[i] for i in I[0]]
+        # OpenAI GPTチャットAPIを使用してテキスト生成
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": prompt}
+            ]
+        )
 
-    # 関連する文書を基にして、プロンプトを作成
-    prompt_for_gpt = prompt + "\n\n" + "\n\n".join(related_docs)
+        # 生成されたテキストを表示
+        st.chat_message(message="Assistant", content=response.choices[0].message['content'])
 
-    # OpenAI GPTを使用してテキスト生成
-    openai.api_key = api_key
-    response = openai.ChatCompletion.create(
-        model=st.session_state["openai_model"],
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": prompt_for_gpt}
-        ]
-    )
-
-    # 生成されたテキストをセッション状態に追加
-    answer = response.choices[0].message['content']
-    st.session_state.messages.append({"role": "assistant", "content": answer})
-    answer_str = str(answer)
-    st.chat_message("assistant", str(answer_str))
+# ユーザーの発言を表示
+st.chat_message(message="User", content=user_message)
 
 
