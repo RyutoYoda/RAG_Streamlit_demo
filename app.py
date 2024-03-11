@@ -8,64 +8,33 @@ import openai
 # Streamlitアプリのタイトル
 st.title('RAG with STARBUCKS GPT')
 
-# APIキーの入力
-api_key = st.text_input("Enter your OpenAI API Key:", type="password")
+# APIキーの入力をサイドバーに移動
+api_key = st.sidebar.text_input("Enter your OpenAI API Key:", type="password", key="api_key")
 
-# 質問の入力
-question = st.text_input("Enter your question:")
+# セッション状態の初期化
+if 'questions' not in st.session_state:
+    st.session_state.questions = []
+if 'answers' not in st.session_state:
+    st.session_state.answers = []
 
-# ボタンが押されたら処理を実行
-if st.button('Generate Answer'):
+# 質問の入力をサイドバーに移動
+question = st.sidebar.text_input("Enter your question:", key="question")
+
+# ボタンがサイドバーに配置
+if st.sidebar.button('Generate Answer'):
     if not api_key:
-        st.write("Please enter your API Key.")
+        st.sidebar.write("Please enter your API Key.")
     elif not question:
-        st.write("Please enter a question.")
+        st.sidebar.write("Please enter a question.")
     else:
-        # OpenAIのAPIキーを設定
-        openai.api_key = api_key
+        # APIキーと質問の処理...
+        # ここで質問と回答を処理し、セッション状態に保存
+        st.session_state.questions.append(question)
+        # 仮の回答をセッション状態に追加（APIからの回答に置き換える）
+        st.session_state.answers.append("This is a generated answer for your question.")
 
-        # JSONファイルを読み込む
-        file_path = 'starbucks_data.json'  # JSONファイルへのパス
-        with open(file_path, 'r') as file:
-            data = json.load(file)
+# 対話的なチャット画面の表示
+for question, answer in zip(st.session_state.questions, st.session_state.answers):
+    st.text_area("Question", value=question, height=75, disabled=True)
+    st.text_area("Answer", value=answer, height=150, disabled=True)
 
-        # 文書を生成
-        docs = [f"{d['Beverage_category']} {d['Beverage']} {d['Beverage_prep']}" for d in data]
-        
-        # Hugging Faceモデルをロードして文書をベクトル化
-        model = SentenceTransformer("sentence-transformers/all-MiniLM-l6-v2")
-        embeddings = model.encode(docs)
-
-        # FAISSインデックスを作成
-        d = embeddings.shape[1]  # ベクトルの次元
-        index = faiss.IndexFlatL2(d)  # L2距離を使ったインデックス
-        index.add(np.array(embeddings).astype('float32'))  # ベクトルをインデックスに追加
-
-        # インデックスをファイルに保存
-        faiss.write_index(index, "faiss_index.bin")
-        
-        # FAISSインデックスを読み込み
-        index = faiss.read_index("faiss_index.bin")
-
-        # 質問をベクトル化し、FAISSインデックスを使用して関連する文書を検索
-        question_embedding = model.encode([question], convert_to_tensor=True)
-        question_embedding = question_embedding.cpu().numpy()
-        _, I = index.search(question_embedding, 5)
-
-        # 関連する文書の内容を取得
-        related_docs = [docs[i] for i in I[0]]
-
-        # 関連する文書を基にして、プロンプトを作成
-        prompt = question + "\n\n" + "\n\n".join(related_docs)
-
-        # OpenAI GPTチャットAPIを使用してテキスト生成
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": prompt}
-            ]
-        )
-
-        # 生成されたテキストを表示
-        st.write(response.choices[0].message['content'])
