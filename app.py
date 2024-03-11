@@ -7,8 +7,8 @@ import openai
 
 st.title("RAG with STARBUCKS GPT")
 
-# Streamlitのsecrets機能を使用してAPIキーを取得
-api_key = st.secrets["OPENAI_API_KEY"]
+# サイドバーでAPIキーの入力を受け付ける
+api_key = st.sidebar.text_input("Enter your OpenAI API Key:", type="password")
 
 # 初期設定
 if "openai_model" not in st.session_state:
