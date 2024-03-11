@@ -74,5 +74,5 @@ if prompt:
 
     # チャット形式で回答を表示
     answer_str = str(answer)
-    st.chat_message("assistant", answer)
+　　　　　　　　st.chat_message("assistant", answer_str)
 
