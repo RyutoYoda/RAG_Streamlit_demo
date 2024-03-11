@@ -73,4 +73,6 @@ if prompt:
     st.session_state.messages.append({"role": "assistant", "content": answer})
 
     # チャット形式で回答を表示
+    answer_str = str(answer)
     st.chat_message("assistant", answer)
+
