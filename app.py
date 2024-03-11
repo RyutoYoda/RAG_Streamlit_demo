@@ -17,17 +17,15 @@ if "openai_model" not in st.session_state:
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# すでにあるメッセージを表示
+# すでにあるメッセージをチャット形式で表示
 for message in st.session_state.messages:
-    if message["role"] == "user":
-        st.text_area("User", value=message["content"], height=75, disabled=True, key=f"user_{st.session_state.messages.index(message)}")
-    elif message["role"] == "assistant":
-        st.text_area("Assistant", value=message["content"], height=100, disabled=True, key=f"assistant_{st.session_state.messages.index(message)}")
+    st.chat_message(message["role"], message["content"])
 
 # ユーザーからの質問を受け取る
-prompt = st.text_input("Ask something about Starbucks beverages:")
+prompt = st.chat_input("Ask something about Starbucks beverages:")
 
-if st.button('Generate Answer') and prompt and api_key:
+if prompt:
+    # ユーザーの質問をセッション状態に追加
     st.session_state.messages.append({"role": "user", "content": prompt})
     
     # JSONファイルを読み込む
@@ -35,24 +33,32 @@ if st.button('Generate Answer') and prompt and api_key:
     with open(file_path, 'r') as file:
         data = json.load(file)
 
+    # 文書を生成
     docs = [f"{d['Beverage_category']} {d['Beverage']} {d['Beverage_prep']}" for d in data]
 
+    # Hugging Faceモデルをロードして文書をベクトル化
     model = SentenceTransformer("sentence-transformers/all-MiniLM-l6-v2")
     embeddings = model.encode(docs)
 
-    d = embeddings.shape[1]
+    # FAISSインデックスを作成
+    d = embeddings.shape[1]  # ベクトルの次元
     index = faiss.IndexFlatL2(d)
     index.add(np.array(embeddings).astype('float32'))
 
+    # 質問をベクトル化
     question_embedding = model.encode([prompt], convert_to_tensor=True)
     question_embedding = question_embedding.cpu().numpy()
 
+    # 関連する文書を検索
     _, I = index.search(question_embedding, 5)
 
+    # 関連する文書の内容を取得
     related_docs = [docs[i] for i in I[0]]
 
+    # 関連する文書を基にして、プロンプトを作成
     prompt_for_gpt = prompt + "\n\n" + "\n\n".join(related_docs)
 
+    # OpenAI GPTを使用してテキスト生成
     openai.api_key = api_key
     response = openai.ChatCompletion.create(
         model=st.session_state["openai_model"],
@@ -62,8 +68,9 @@ if st.button('Generate Answer') and prompt and api_key:
         ]
     )
 
+    # 生成されたテキストをセッション状態に追加
     answer = response.choices[0].message['content']
     st.session_state.messages.append({"role": "assistant", "content": answer})
 
-# アプリのUIを更新するためにページを再読み込み
-st.experimental_rerun()
+    # チャット形式で回答を表示
+    st.chat_message("assistant", answer)
