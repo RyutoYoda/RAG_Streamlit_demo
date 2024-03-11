@@ -1,5 +1,4 @@
 import streamlit as st
-import faiss
 import numpy as np
 from sentence_transformers import SentenceTransformer
 import json
@@ -38,24 +37,19 @@ if prompt and api_key:
         data = json.load(file)
 
     # 文書を生成
-    docs = [f"{d['Beverage_category']} {d['Beverage']} {d['Beverage_prep']}" for d in data]
+    data: List[str] = [f"{d['Beverage_category']} {d['Beverage']} {d['Beverage_prep']}" for d in data]
 
     # Hugging Faceモデルをロードして文書をベクトル化
     model = SentenceTransformer("sentence-transformers/all-MiniLM-l6-v2")
-    embeddings = model.encode(docs)
-
-    # FAISSインデックスを作成
-    d = embeddings.shape[1]  # ベクトルの次元
-    index = faiss.IndexFlatL2(d)  # L2距離を使ったインデックス
-    index.add(np.array(embeddings).astype('float32'))  # ベクトルをインデックスに追加
+    embeddings: np.ndarray = model.encode(data)
 
     # 質問をベクトル化し、FAISSインデックスを使用して関連する文書を検索
     question_embedding = model.encode([prompt], convert_to_tensor=True)
     question_embedding = question_embedding.cpu().numpy()
-    _, I = index.search(question_embedding, 5)
+    _, I = faiss.IndexFlatL2(embeddings.shape[1]).search(question_embedding, 5)
 
     # 関連する文書の内容を取得
-    related_docs = [docs[i] for i in I[0]]
+    related_docs: List[str] = [data[i] for i in I[0]]
 
     # 関連する文書を基にして、プロンプトを作成
     prompt_for_gpt = prompt + "\n\n" + "\n\n".join(related_docs)
@@ -71,4 +65,5 @@ if prompt and api_key:
 
     # 生成されたテキストをセッション状態のメッセージに追加
     st.session_state['messages'].append({"role": "assistant", "content": response.choices[0].message['content']})
+
 
