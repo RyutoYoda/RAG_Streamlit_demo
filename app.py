@@ -9,7 +9,8 @@ import openai
 st.title('RAG with STARBUCKS GPT')
 
 # APIキーの入力
-api_key = st.text_input("Enter your OpenAI API Key:", type="password")
+api_key = st.sidebar.text_input("Enter your OpenAI API Key:", type="password")
+
 
 # 質問の入力
 question = st.text_input("Enter your question:")
