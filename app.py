@@ -63,10 +63,9 @@ if st.button('Generate Answer'):
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": prompt}
+                {"role": "user", "content": prompt},  # 変更: ユーザーメッセージを追加
+                {"role": "assistant"}  # 変更: アシスタントの役割を定義
             ]
         )
-
         # 生成されたテキストを表示
         st.write(response.choices[0].message['content'])
