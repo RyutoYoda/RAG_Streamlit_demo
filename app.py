@@ -3,8 +3,9 @@ import faiss
 import numpy as np
 from sentence_transformers import SentenceTransformer
 import json
+import os
 import openai
-
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 # Streamlitアプリのタイトル
 st.title('Barista GPT')
 
