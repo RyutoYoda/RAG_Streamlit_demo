@@ -6,7 +6,7 @@ import json
 import openai
 
 # Streamlitアプリのタイトル
-st.title('RAG with STARBUCKS GPT')
+st.title('Barista GPT')
 
 # APIキーの入力
 api_key = st.sidebar.text_input("Enter your OpenAI API Key:", type="password")
