@@ -65,7 +65,6 @@ if st.button('Generate Answer'):
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "user", "content": prompt},  # 変更: ユーザーメッセージを追加
-                {"role": "assistant"}  # 変更: アシスタントの役割を定義
             ]
         )
         # 生成されたテキストを表示
