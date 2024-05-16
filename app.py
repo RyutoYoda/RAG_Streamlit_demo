@@ -5,13 +5,15 @@ from sentence_transformers import SentenceTransformer
 import json
 import os
 import openai
+import base64
+
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
 st.set_page_config(
     page_title="Barista Chat",
     page_icon="☕️"
 )
-# Streamlitアプリのタイトル
-st.title('Barista Chat☕️')
+
 # スタイル設定
 st.markdown("""
 <style>
@@ -142,7 +144,7 @@ li {
 </style>
 """, unsafe_allow_html=True)
 
-# 画像をタイトルの上に追加
+# 画像をタイトルの下に追加する関数
 def load_image(image_path):
     with open(image_path, "rb") as img_file:
         return base64.b64encode(img_file.read()).decode()
@@ -157,6 +159,10 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
+# Streamlitアプリのタイトル
+st.title('Barista Chat☕️')
+
 with st.expander("Barista Chatについて"):
     st.markdown("""
         Barista Chat☕️は、コーヒーに関する質問に回答するチャットアプリです。
@@ -169,7 +175,6 @@ with st.expander("Barista Chatについて"):
 
 # APIキーの入力
 api_key = st.sidebar.text_input("OpenAI API Keyを入力", type="password")
-
 
 # 質問の入力
 question = st.text_input("質問を入力してください")
@@ -227,3 +232,4 @@ if st.button('回答を出力する'):
         )
         # 生成されたテキストを表示
         st.write(response.choices[0].message['content'])
+
