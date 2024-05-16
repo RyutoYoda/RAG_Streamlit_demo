@@ -12,6 +12,21 @@ st.set_page_config(
 )
 # Streamlitアプリのタイトル
 st.title('Barista Chat☕️')
+# 画像をタイトルの上に追加
+def load_image(image_path):
+    with open(image_path, "rb") as img_file:
+        return base64.b64encode(img_file.read()).decode()
+
+image_path = "スクリーンショット 2024-05-16 13.51.00.png"  # 画像ファイルのパスを指定
+image_base64 = load_image(image_path)
+st.markdown(
+    f"""
+    <div style="text-align: center;">
+        <img src="data:image/png;base64,{image_base64}" alt="可愛いバリスタ" style="width: 100%;"/>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 # スタイル設定
 st.markdown("""
 <style>
