@@ -115,7 +115,7 @@ li {
     .stTextInput>div>div>input {
         border: 1px solid #61dafb !important;
         color: #ffffff !important;
-        background-color: #3c3f41 !important;
+        background-color: #3c3f41 !重要です。
     }
 }
 @media (prefers-color-scheme: light) {
@@ -144,6 +144,9 @@ li {
 </style>
 """, unsafe_allow_html=True)
 
+# Streamlitアプリのタイトル
+st.title('Barista Chat☕️')
+
 # 画像をタイトルの下に追加する関数
 def load_image(image_path):
     with open(image_path, "rb") as img_file:
@@ -159,9 +162,6 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-
-# Streamlitアプリのタイトル
-st.title('Barista Chat☕️')
 
 with st.expander("Barista Chatについて"):
     st.markdown("""
