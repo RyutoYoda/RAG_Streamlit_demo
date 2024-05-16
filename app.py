@@ -6,8 +6,12 @@ import json
 import os
 import openai
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
+st.set_page_config(
+    page_title="Barista Chat",
+    page_icon="☕️"
+)
 # Streamlitアプリのタイトル
-st.title('Barista GPT')
+st.title('Barista Chat☕️')
 # スタイル設定
 st.markdown("""
 <style>
