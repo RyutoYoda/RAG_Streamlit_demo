@@ -8,6 +8,135 @@ import openai
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 # Streamlitアプリのタイトル
 st.title('Barista GPT')
+# スタイル設定
+st.markdown("""
+<style>
+body {
+    font-family: 'Helvetica Neue', sans-serif;
+}
+.big-font {
+    font-size:50px !important;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 30px;
+}
+.header-font {
+    font-size:30px !important;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+.subheader-font {
+    font-size:20px !important;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+.container {
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+.stButton>button {
+    font-size: 16px !important;
+    font-weight: bold !important;
+    border-radius: 5px !important;
+    width: 100%;
+    padding: 10px;
+}
+.stTextInput>div>div>input {
+    border-radius: 5px !important;
+    border: 1px solid !important;
+}
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+li {
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+}
+.header-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+}
+.sidebar-img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 20px;
+}
+.main-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.card {
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin: 20px;
+    padding: 20px;
+    width: 90%;
+    max-width: 700px;
+    text-align: left;
+}
+.card img {
+    border-radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #1e1e1e;
+        color: #ffffff;
+    }
+    .big-font, .header-font {
+        color: #61dafb;
+    }
+    .subheader-font {
+        color: #a9a9a9;
+    }
+    .container, .card, li {
+        background-color: #282c34;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+    }
+    .stButton>button {
+        background-color: #61dafb !important;
+        color: #282c34 !important;
+    }
+    .stTextInput>div>div>input {
+        border: 1px solid #61dafb !important;
+        color: #ffffff !important;
+        background-color: #3c3f41 !important;
+    }
+}
+@media (prefers-color-scheme: light) {
+    body {
+        background-color: #f5f5f5;
+        color: #333333;
+    }
+    .big-font, .header-font {
+        color: #007bff;
+    }
+    .subheader-font {
+        color: #666666;
+    }
+    .container, .card, li {
+        background-color: #ffffff;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    }
+    .stButton>button {
+        background-color: #007bff !important;
+        color: #ffffff !important;
+    }
+    .stTextInput>div>div>input {
+        border: 1px solid #cccccc !important;
+    }
+}
+</style>
+""", unsafe_allow_html=True)
 
 # APIキーの入力
 api_key = st.sidebar.text_input("Enter your OpenAI API Key:", type="password")
