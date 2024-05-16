@@ -141,20 +141,29 @@ li {
 }
 </style>
 """, unsafe_allow_html=True)
+with st.expander("Barista Chatについて"):
+    st.markdown("""
+        Barista Chat☕️は、コーヒーに関する質問に回答するチャットアプリです。
+        
+        **使い方:**
+        1. サイドバーからOpenAI APIキーを入力してください。(https://platform.openai.com/api-keys)
+        2. 「質問を入力してください」に質問したい内容を入力します（例: 「一番カロリーの低いドリンクは？」）。
+        3. 「回答を出力する」ボタンを押して、回答の生成を開始します。
+    """, unsafe_allow_html=True)
 
 # APIキーの入力
-api_key = st.sidebar.text_input("Enter your OpenAI API Key:", type="password")
+api_key = st.sidebar.text_input("OpenAI API Keyを入力", type="password")
 
 
 # 質問の入力
-question = st.text_input("Enter your question:")
+question = st.text_input("質問を入力してください")
 
 # ボタンが押されたら処理を実行
-if st.button('Generate Answer'):
+if st.button('回答を出力する'):
     if not api_key:
-        st.write("Please enter your API Key.")
+        st.write("OpenAI API Keyを入力してください")
     elif not question:
-        st.write("Please enter a question.")
+        st.write("質問を入力してください")
     else:
         # OpenAIのAPIキーを設定
         openai.api_key = api_key
